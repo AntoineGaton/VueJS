@@ -3,8 +3,7 @@
 // Implements RESTful CRUD operations for the User entity
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UserManagerAPI.Data;
+using UserManagerAPI.Data.Repositories;
 using UserManagerAPI.Models;
 
 namespace UserManagerAPI.Controllers
@@ -13,20 +12,19 @@ namespace UserManagerAPI.Controllers
     /// API controller for managing users
     /// Handles HTTP requests for user-related operations
     /// </summary>
-    [ApiController] // Indicates this is an API controller
-    [Route("api/[controller]")] // [controller] is replaced with "Users" from the class name UsersController
+    [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        // Database context for performing database operations
-        private readonly AppDbContext _context;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
-        /// Constructor that injects the database context
-        /// Dependency injection provides the database context instance
+        /// Constructor that injects the user repository
+        /// Dependency injection provides the repository instance
         /// </summary>
-        public UsersController(AppDbContext context)
+        public UsersController(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -35,11 +33,11 @@ namespace UserManagerAPI.Controllers
         /// </summary>
         /// <returns>List of all users</returns>
         [HttpGet]
-        // Task<> is used because this is an async method that returns a Promise-like object
-        // ActionResult<> allows returning both the data and HTTP status codes (like 404, 400 etc)
-        // IEnumerable<User> represents the collection of User objects being returned
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-            => await _context.Users.ToListAsync();
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+            return Ok(users);
+        }
 
         /// <summary>
         /// GET: api/users/{id}
@@ -50,7 +48,7 @@ namespace UserManagerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetUserByIdAsync(id);
             return user == null ? NotFound() : Ok(user);
         }
 
@@ -63,9 +61,8 @@ namespace UserManagerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> CreateUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            var createdUser = await _userRepository.CreateUserAsync(user);
+            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
         }
 
         /// <summary>
@@ -79,9 +76,16 @@ namespace UserManagerAPI.Controllers
         public async Task<IActionResult> UpdateUser(int id, User user)
         {
             if (id != user.Id) return BadRequest();
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
+
+            try
+            {
+                await _userRepository.UpdateUserAsync(user);
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
         }
 
         /// <summary>
@@ -93,12 +97,15 @@ namespace UserManagerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound();
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                await _userRepository.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return NotFound();
+            }
         }
     }
 }

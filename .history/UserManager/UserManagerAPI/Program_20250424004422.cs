@@ -3,6 +3,7 @@
 
 // Import necessary namespaces
 using UserManagerAPI.Data;
+using UserManagerAPI.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using UserManagerAPI.Models;
 
@@ -16,10 +17,17 @@ builder.Services.AddControllers(); // Add support for MVC controllers
 builder.Services.AddEndpointsApiExplorer(); // Enable API documentation
 builder.Services.AddSwaggerGen(); // Add Swagger for API documentation and testing
 
+// Configure settings
+var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>();
+builder.Services.AddSingleton(appSettings);
+
 // Configure Entity Framework Core with SQLite
 // This sets up the database context that will be used throughout the application
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=users.db")); // SQLite database file location
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Configure CORS (Cross-Origin Resource Sharing)
 // This allows the frontend application to communicate with this API

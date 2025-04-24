@@ -1,50 +1,34 @@
-<!-- App.vue - Root Component -->
-<!-- This is the main component that serves as the application's layout -->
-<!-- It contains the navigation and the router view where other components are rendered -->
-
 <script setup>
-// Import Vue Router components for navigation
 import { RouterLink, RouterView } from 'vue-router'
-// Import the HelloWorld component
 import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <!-- Main application container -->
   <div class="app-container">
-    <!-- Left section containing logo and navigation -->
     <div class="left-section">
-      <!-- Vue logo -->
       <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
       <div class="wrapper">
-        <!-- Welcome message component -->
         <HelloWorld msg="Welcome to the User Manager Application" />
 
-        <!-- Navigation links -->
         <nav>
-          <!-- RouterLink components for navigation -->
           <RouterLink to="/users">Users</RouterLink>
           <RouterLink to="/create-user">Create User</RouterLink>
         </nav>
       </div>
     </div>
 
-    <!-- Vertical divider with animation -->
     <div class="vertical-divider">
       <div class="pulse-line-vertical"></div>
     </div>
 
-    <!-- Right section where route components are rendered -->
     <div class="right-section">
-      <!-- RouterView is where the current route component is rendered -->
       <RouterView />
     </div>
   </div>
 </template>
 
 <style>
-/* Global styles for the application */
 #app {
   display: flex;
   justify-content: center;
@@ -53,7 +37,6 @@ import HelloWorld from './components/HelloWorld.vue'
   width: 100%;
 }
 
-/* Main container styles */
 .app-container {
   display: flex;
   justify-content: center;
@@ -62,7 +45,6 @@ import HelloWorld from './components/HelloWorld.vue'
   padding: 2rem;
 }
 
-/* Left and right section styles */
 .left-section,
 .right-section {
   flex: 1;

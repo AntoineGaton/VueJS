@@ -14,7 +14,7 @@ namespace UserManagerAPI.Controllers
     /// Handles HTTP requests for user-related operations
     /// </summary>
     [ApiController] // Indicates this is an API controller
-    [Route("api/[controller]")] // [controller] is replaced with "Users" from the class name UsersController
+    [Route("api/[controller]")] // Sets the base route to /api/users
     public class UsersController : ControllerBase
     {
         // Database context for performing database operations
@@ -35,9 +35,6 @@ namespace UserManagerAPI.Controllers
         /// </summary>
         /// <returns>List of all users</returns>
         [HttpGet]
-        // Task<> is used because this is an async method that returns a Promise-like object
-        // ActionResult<> allows returning both the data and HTTP status codes (like 404, 400 etc)
-        // IEnumerable<User> represents the collection of User objects being returned
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
             => await _context.Users.ToListAsync();
 
